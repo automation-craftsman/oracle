@@ -21,9 +21,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: docker.io
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}}
 
       # Step 4: Build and push the image to Docker Hub
       - name: Build and push docker image
@@ -32,6 +31,6 @@ jobs:
           context: ./backend
           push: true
           tags: |
-            ${{ vars.DOCKERHUB_USERNAME }}/oracle-backend:${{ github.event.release.tag_name }}
-            ${{ vars.DOCKERHUB_USERNAME }}/oracle-backend:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/oracle-backend:${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/oracle-backend:latest
           
