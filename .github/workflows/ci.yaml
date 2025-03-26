@@ -6,7 +6,7 @@ on:
     - dev
 
 jobs:
-  integration_check:
+  integration-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -59,3 +59,4 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
