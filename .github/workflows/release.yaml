@@ -34,4 +34,5 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/oracle-backend:${{ github.event.release.tag_name }}
             ${{ secrets.DOCKERHUB_USERNAME }}/oracle-backend:latest
+
           
