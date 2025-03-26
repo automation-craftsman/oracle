@@ -1,0 +1,62 @@
+- name: Provision EC2 instance for Oracle project
+  hosts: backend
+  gather_facts: no
+  remote_user: ubuntu
+  become: yes
+
+  tasks:
+    # Task 1: Update package index
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    # Task 2: Install required packages
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - gnupg
+          - lsb-release
+        state: present
+
+    # Task 3: Install Docker and Nginx
+    - name: Install Docker
+      apt:
+        name:
+          - docker.io
+          - nginx
+        state: present
+        update_cache: yes
+
+    # Task 4: Add the ubuntu user to the docker group
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    # Task 5: Ensure Docker service is running
+    - name: Ensure Docker service is running
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    # Task 6: Ensure Nginx service is running
+    - name: Ensure Nginx service is running
+      systemd:
+        name: nginx
+        state: started
+        enabled: yes
+
+    # Task 7: Install docker compose
+    - name: Install Docker compose
+      apt:
+        name:
+          - docker-compose-v2
+        state: present
+        update_cache: yes
+        
