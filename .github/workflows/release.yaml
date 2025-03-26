@@ -23,7 +23,7 @@ jobs:
         with:
           registry: docker.io
           username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}}
+          password: ${{ secrets.DOCKERHUB_ACCESS_TOKEN }}}
 
       # Step 4: Build and push the image to Docker Hub
       - name: Build and push docker image
