@@ -1,0 +1,61 @@
+name: Code Integration Workflow
+
+on:
+  push:
+    branches:
+    - dev
+
+jobs:
+  integration_check:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the codes from repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install node.js
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      
+      # Step 3: Install dependencies for backend
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+
+      # Step 4: Install dependencies for frontend (ignore if no package.json exists)
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install || true
+
+      # Step 5: Run linting for JavaScript (backend and frontend)
+      - name: Run JavaScript linting
+        run: |
+          cd backend
+          npm run lint:js || true
+          cd ../frontend
+          npm run lint:js || true
+
+      # Step 6: Run linting for HTML (frontend)
+      - name: Run HTML linting
+        run: |
+          cd frontend
+          npm run lint:html || true
+
+      # Step 7: Run formatting check (backend and frontend)
+      - name: Run formatting check
+        run: |
+          cd frontend
+          npm run format -- --check || true
+          cd ../backend
+          npm run format -- --check || true
+
+      # Step 8: Check code quality with SonarQube
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
