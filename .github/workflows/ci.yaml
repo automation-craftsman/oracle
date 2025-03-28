@@ -1,4 +1,4 @@
-name: Code Integration Workflow
+name: Code Integration and Docker Container Deploy
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
     - dev
 
 jobs:
-  integration-check:
+  integration-and-code-quality-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -60,3 +60,68 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+  build-and-check-docker-image:
+    needs: integration-and-code-quality-check
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+
+    steps:
+      # Step 1: Checkout the codes from repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Run lintng for Dockerfile
+      - name: Lint dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./backend/Dockerfile
+
+      # Step 3: Build sample docker image
+      - name: Build docker image
+        run: docker build --progress=plain --no-cache -t oracle:latest ./backend
+
+      # Step 4: Docker image security scan for vulns'
+      - name: Security scan with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'oracle:latest'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL'
+
+  deploy-docker-image:
+    needs: build-and-check-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the codes from repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      # Step 3: Capture latest commit hash
+      - name: Get latest commit hash
+        id: commit_hash
+        run: |
+          echo "short_commit_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      
+      # Step 4: Build and push the image to Docker Hub
+      - name: Build and push docker image
+        if: success()
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/oracle-backend:${{ steps.commit_hash.outputs.short_commit_hash }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/oracle-backend:latest
