@@ -1,0 +1,53 @@
+name: Deploy Frontend to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true || github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the codes from repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Install node.js
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # Step 3: Install dependencies for frontend
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      # Step 4: Set backend URL in config.json from Github secrets
+      - name: Set Backend URL in config.json
+        run: |
+          echo '{"BACKEND_URL": "${{ secrets.BACKEND_URL }}"}' > config.json
+
+      # Step 5: Build frontend to deploy
+      - name: Build frontend
+        run: |
+          npm run build
+
+      # Step 6: Deploy frontend in the cloudflare pages
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          
