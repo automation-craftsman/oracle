@@ -38,19 +38,13 @@ jobs:
       #   run: |
       #     echo '{"BACKEND_URL": "${{ secrets.BACKEND_URL }}"}' > config.json
 
-      # Step 4: Create build directory
-      - name: Create build directory
-        run: |
-          mkdir dist
-          cr -r * dist/
-
       # Step 5: Setup wrangler for manual deployment
       - name: Install Wrangler
         run: npm install -g wrangler@latest
 
       # Step 6: Publish cloudflare pages
       - name: Deploy to Cloudflare Pages
-        run: npx wrangler pages deploy ./frontend/dist --project-name=oracle --commit-dirty=true --branch=master --commit-hash=$(date +%s)
+        run: npx wrangler pages deploy ./frontend --project-name=oracle --commit-dirty=true --branch=master --commit-hash=$(date +%s)
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
