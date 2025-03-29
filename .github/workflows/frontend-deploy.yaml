@@ -38,10 +38,10 @@ jobs:
         run: |
           echo '{"BACKEND_URL": "${{ secrets.BACKEND_URL }}"}' > config.json
 
-      # Step 5: Build frontend to deploy
-      - name: Build frontend
-        run: |
-          npm run build
+      # # Step 5: Build frontend to deploy
+      # - name: Build frontend
+      #   run: |
+      #     npm run build
 
       # Step 6: Deploy frontend in the cloudflare pages
       - name: Deploy to Cloudflare Pages
