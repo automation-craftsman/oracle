@@ -41,8 +41,8 @@ Steps:
         Runs npm run build to build the frontend for deployment.
         Assumes the build output is in a directory like frontend/build.
     Deploy to Cloudflare Pages:
-        Uses cloudflare/wrangler-action@v3 to deploy the frontend to Cloudflare Pages.
-        Requires secrets: GITHUB_TOKEN, CLOUDFLARE_API_TOKEN, and CLOUDFLARE_ACCOUNT_ID.
+        Uses wrangler to deploy the frontend to Cloudflare Pages.
+        Requires secrets: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID.
 
 Secrets Required
 
@@ -61,6 +61,5 @@ Usage
     Access the deployed frontend at your Cloudflare Pages URL (e.g., https://oracle-frontend.pages.dev).
 
 Notes
-
     The workflow assumes the frontend is in the frontend/ directory and uses npm run build.
     The config.json file provides the BACKEND_URL for the frontend to use at runtime.
